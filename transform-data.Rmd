@@ -1,0 +1,149 @@
+---
+title: "Proteker2016"
+author: "Yi-Ming Gan"
+date: "`r Sys.Date()`"
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "html") })
+output:
+  html_document:
+    df_print: paged
+---
+
+Transform Proteker 2016 data into sampling event core, occurrence extension and measurement or fact extension. The dataset is modeled this way because there is sediment sample that could not go into occurrence core.
+
+## Read data 
+
+### Event sheet
+
+Event sheet was created by using unique records of [sampling event fields](https://rs.gbif.org/core/dwc_event_2022-02-02.xml) based on the sampling date.
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+# disable scientific notation so that coordinatePrecision of value 0.0001 will not become 1e-4
+options(scipen = 999)
+
+# read event from url
+event <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTgsWJwmdxwhBtqo2JOAHMjQ0heA9jRtSB0ilfczTuVd80VBD79M3VYZPda69W9ALF286qd7BauJYqP/pub?gid=584519375&single=true&output=tsv", header = TRUE, sep = "\t", allowEscapes = FALSE, quote = "", check.names = FALSE)  
+head(event)
+names(event)
+
+```
+
+### Occurrence sheet
+
+```{r}
+# read occurrence from url
+occ <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTgsWJwmdxwhBtqo2JOAHMjQ0heA9jRtSB0ilfczTuVd80VBD79M3VYZPda69W9ALF286qd7BauJYqP/pub?gid=0&single=true&output=tsv", header = TRUE, sep = "\t", allowEscapes = FALSE, quote = "", check.names = FALSE)  
+head(occ)
+names(occ)
+```
+
+## Create occurrence data frame
+
+Data with fields of [occurrence core](https://rs.gbif.org/core/dwc_occurrence_2022-02-02.xml) is subset from the full dataset. This data frame will be written into `occurrence.txt` file.
+
+```{r}
+# occurrence data frame spans from column 1-41, all columns beyond that belongs to measurement or fact extension
+occ_df <- select(occ, -c(verbatimOccurenceID, measurementRemarks, decimalLatitude, decimalLongitude, geodeticDatum, minimumDepthInMeters, maximumDepthInMeters, d13C, d15N, d34S), -contains("%"), -contains("C/N")) 
+                 
+head(occ_df)
+```
+
+
+## Read measurementTypes sheet 
+
+To obtain the `measurementType` of each measurement field.
+
+```{r}
+# read measurementTypes sheet which has definition and unit for each measurmeent header
+mof_fields <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTgsWJwmdxwhBtqo2JOAHMjQ0heA9jRtSB0ilfczTuVd80VBD79M3VYZPda69W9ALF286qd7BauJYqP/pub?gid=1897909656&single=true&output=tsv", header = TRUE, sep = "\t", check.names = FALSE)
+mof_fields
+```
+
+## Simple function to subset a measurementType from wide table into long measurement or fact table
+
+```{r message=FALSE}
+#' Function to subset a measurementType from wide table to long measurement or fact table
+#'
+#' @param data The data frame which contains measurement data in wide format.
+#' @param mof_fields The data frame which contains measurement columnName of `data`, measurementType and measurementUnit
+#' @param measurement_col A string which is the field name of data frame that contains the measurement value. Will be used to populate the measurementValue field.
+#
+
+create_var_mof <- function(data = data, mof_fields = mof_fields, measurement_col) {
+  # create a measurement or fact table of a single measurement type from the data
+  # subset from full dataset
+  mof <- data %>% 
+    # remove rows of measurement which are NULL
+    filter(!is.na(!!as.symbol(measurement_col))) %>%  # !!as.symbol is required as column name is passed as string
+    select(eventID, occurrenceID, !!as.symbol(measurement_col), measurementRemarks)
+  
+  # pull measurementType and measuremntUnit from measurmentTypes sheet based on the column name
+  measurement_type <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementType)
+  measurement_unit <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnit)
+
+
+  # create mof table (long table)
+  mof_df <- data.frame(
+    eventID = mof[, "eventID"],
+    occurrenceID = mof[, "occurrenceID"],
+    measurementType = replicate(nrow(mof), measurement_type),
+    measurementValue = mof[, measurement_col],
+    measurementUnit = measurement_unit,
+    measurementRemarks = mof[, "measurementRemarks"]
+  )
+  return(mof_df)
+}
+```
+
+
+## Subsets of different measurements
+
+
+```{r}
+d13C <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d13C")
+d15N <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d15N")
+d34S <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d34S")
+percent_C <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%C")
+percent_N <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%N")
+percent_S <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%S")
+C_N_ratio <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "C/N")
+
+# example
+head(d13C)
+
+```
+
+
+```{r}
+mof_df <- rbind(
+  d13C,
+  d15N,
+  d34S,
+  percent_C,
+  percent_N,
+  percent_S,
+  C_N_ratio
+)
+
+dim(mof_df)  # dimension of the mof long table
+head(mof_df)  # preview mof table
+```
+
+## Write data frames to files
+
+```{r message=FALSE}
+library(here)
+library(readr)
+require(dplyr)    
+
+outfile_dir <- here("data/processed")
+event_file <- file.path(outfile_dir, "event.txt")
+occ_file <- file.path(outfile_dir, "occurrence.txt")
+mof_file <- file.path(outfile_dir, "measurementOrFact.txt")
+
+write_tsv(event, event_file, na = "", quote = "none", escape = "none")
+write_tsv(occ_df, occ_file, na = "", quote = "none", escape = "none")
+write_tsv(mof_df, mof_file, na = "", quote = "none", escape = "none")
+```
