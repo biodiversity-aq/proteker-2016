@@ -18,7 +18,7 @@ This repository contains short code to transform raw data of dataset `Stable iso
 └── transform-data.Rmd	        : Rmarkdown file of the code
 ```
 
-Knitted Rmarkdown can be rendered at https://raw.githack.com/biodiversity-aq/proteker-2016/main/html/transform-data.html
+Knitted Rmarkdown can be rendered at https://raw.githack.com/biodiversity-aq/proteker-2016/master/html/transform-data.html
 
 ## Getting started
 
