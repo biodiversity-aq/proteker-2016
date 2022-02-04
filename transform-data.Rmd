@@ -115,7 +115,6 @@ head(d13C)
 
 ```
 
-
 ```{r}
 mof_df <- rbind(
   d13C,
@@ -130,6 +129,18 @@ mof_df <- rbind(
 dim(mof_df)  # dimension of the mof long table
 head(mof_df)  # preview mof table
 ```
+
+## Create measurementID
+
+Add a column of unique measurementID per record
+
+```{r}
+# add a sequential number to eventID for this
+mof_df <- mof_df %>% mutate(measurementID=paste(eventID, 1:nrow(mof_df), sep = "_"), .before=eventID)
+head(mof_df)
+```
+
+
 
 ## Write data frames to files
 
