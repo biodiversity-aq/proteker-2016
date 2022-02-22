@@ -45,7 +45,7 @@ Data with fields of [occurrence core](https://rs.gbif.org/core/dwc_occurrence_20
 
 ```{r}
 # exclude fields belong to sampling event core and measurement or fact extension
-occ_df <- select(occ, -c(verbatimOccurenceID, measurementRemarks, decimalLatitude, decimalLongitude, geodeticDatum, minimumDepthInMeters, maximumDepthInMeters, d13C, d15N, d34S), -contains("%"), -contains("C/N")) 
+occ_df <- select(occ, -c(verbatimOccurenceID, measurementRemarks, year, month, day, coordinateUncertaintyInMeters, decimalLatitude, decimalLongitude, geodeticDatum, minimumDepthInMeters, maximumDepthInMeters, d13C, d15N, d34S), -contains("%"), -contains("C/N")) 
                  
 head(occ_df)
 names(occ_df)
