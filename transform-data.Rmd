@@ -44,16 +44,17 @@ names(occ)
 Data with fields of [occurrence core](https://rs.gbif.org/core/dwc_occurrence_2022-02-02.xml) is subset from the full dataset. This data frame will be written into `occurrence.txt` file.
 
 ```{r}
-# occurrence data frame spans from column 1-41, all columns beyond that belongs to measurement or fact extension
+# exclude fields belong to sampling event core and measurement or fact extension
 occ_df <- select(occ, -c(verbatimOccurenceID, measurementRemarks, decimalLatitude, decimalLongitude, geodeticDatum, minimumDepthInMeters, maximumDepthInMeters, d13C, d15N, d34S), -contains("%"), -contains("C/N")) 
                  
 head(occ_df)
+names(occ_df)
 ```
 
 
-## Read measurementTypes sheet 
+## Read mof sheet 
 
-To obtain the `measurementType` of each measurement field.
+MOF sheet contains the definition of all measurement types, BODC vocabularies and corresponding units. 
 
 ```{r}
 # read measurementTypes sheet which has definition and unit for each measurmeent header
@@ -64,14 +65,52 @@ mof_fields
 ## Simple function to subset a measurementType from wide table into long measurement or fact table
 
 ```{r message=FALSE}
-#' Function to subset a measurementType from wide table to long measurement or fact table
+#' Function to subset a measurementType from wide event table to long measurement or fact table
+#'
+#' @param data The data frame which contains measurement data in wide format.
+#' @param mof_fields The data frame which contains measurement columnName of `data`, measurementType and measurementUnit
+#' @param measurement_col A string which is the field name of data frame that contains the measurement value. Will be used to populate the measurementValue field.
+#
+create_event_emof <- function(data = data, mof_fields = mof_fields, measurement_col) {
+  # create a measurement or fact table of a single measurement type from the data
+  # subset from full dataset
+  mof <- data %>% 
+    # remove rows of measurement which are NULL
+    filter(!is.na(!!as.symbol(measurement_col))) %>%  # !!as.symbol is required as column name is passed as string
+    select(eventID, !!as.symbol(measurement_col))  # occurrenceID is absent because this is an event table
+  
+  # pull measurementType, measurementTypeID, measuremntUnit and measurmentUnitID from mof sheet based on the column name
+  measurement_type <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementType)
+  measurement_type_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementTypeID)
+  measurement_unit <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnit)
+  measurement_unit_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnitID)
+
+  # create mof table (long table)
+  mof_df <- data.frame(
+    eventID = mof[, "eventID"],
+    occurrenceID = "",
+    measurementType = measurement_type,
+    measurementTypeID = measurement_type_id,
+    measurementValue = mof[, measurement_col],
+    measurementUnit = measurement_unit,
+    measurementUnitID = measurement_unit_id,
+    measurementRemarks = ""
+  )  
+  return(mof_df)
+}
+
+```
+
+
+```{r message=FALSE}
+#' Function to subset a measurementType from wide occurrence table to long measurement or fact table
 #'
 #' @param data The data frame which contains measurement data in wide format.
 #' @param mof_fields The data frame which contains measurement columnName of `data`, measurementType and measurementUnit
 #' @param measurement_col A string which is the field name of data frame that contains the measurement value. Will be used to populate the measurementValue field.
 #
 
-create_var_mof <- function(data = data, mof_fields = mof_fields, measurement_col) {
+create_occ_emof <- function(data = data, mof_fields = mof_fields, measurement_col) {
   # create a measurement or fact table of a single measurement type from the data
   # subset from full dataset
   mof <- data %>% 
@@ -81,16 +120,20 @@ create_var_mof <- function(data = data, mof_fields = mof_fields, measurement_col
   
   # pull measurementType and measuremntUnit from measurmentTypes sheet based on the column name
   measurement_type <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementType)
+  measurement_type_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementTypeID)
   measurement_unit <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnit)
+  measurement_unit_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnitID)
 
 
   # create mof table (long table)
   mof_df <- data.frame(
     eventID = mof[, "eventID"],
     occurrenceID = mof[, "occurrenceID"],
-    measurementType = replicate(nrow(mof), measurement_type),
+    measurementType = measurement_type,
+    measurementTypeID = measurement_type_id,
     measurementValue = mof[, measurement_col],
     measurementUnit = measurement_unit,
+    measurementUnitID = measurement_unit_id,
     measurementRemarks = mof[, "measurementRemarks"]
   )
   return(mof_df)
@@ -102,13 +145,14 @@ create_var_mof <- function(data = data, mof_fields = mof_fields, measurement_col
 
 
 ```{r}
-d13C <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d13C")
-d15N <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d15N")
-d34S <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "d34S")
-percent_C <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%C")
-percent_N <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%N")
-percent_S <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "%S")
-C_N_ratio <- create_var_mof(data = occ, mof_fields = mof_fields, measurement_col = "C/N")
+water_temp <- create_event_emof(data = event, mof_fields = mof_fields, measurement_col = "water temperature (°C)")
+d13C <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d13C")
+d15N <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d15N")
+d34S <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d34S")
+percent_C <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%C")
+percent_N <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%N")
+percent_S <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%S")
+C_N_ratio <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "C/N")
 
 # example
 head(d13C)
@@ -117,6 +161,7 @@ head(d13C)
 
 ```{r}
 mof_df <- rbind(
+  water_temp,
   d13C,
   d15N,
   d34S,
