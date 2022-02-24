@@ -68,62 +68,31 @@ mof_fields
 #' Function to subset a measurementType from wide event table to long measurement or fact table
 #'
 #' @param data The data frame which contains measurement data in wide format.
+#' @param mof_type The value should be "event" or "occurrence". If "event", mof variables will be extracted from event table and occurrenceID will not be assigned to the MOF data frame. If "occurrence", mof variables and occurrenceID be extracted from occurrence table and occurrenceID will be used to create the eMOF record.
 #' @param mof_fields The data frame which contains measurement columnName of `data`, measurementType and measurementUnit
 #' @param measurement_col A string which is the field name of data frame that contains the measurement value. Will be used to populate the measurementValue field.
 #
-create_event_emof <- function(data = data, mof_fields = mof_fields, measurement_col) {
+create_emof <- function(data = data, mof_type, mof_fields = mof_fields, measurement_col) {
   # create a measurement or fact table of a single measurement type from the data
   # subset from full dataset
-  mof <- data %>% 
+  if (mof_type =="event") {
+    mof <- data %>% 
+      # remove rows of measurement which are NULL
+      filter(!is.na(!!as.symbol(measurement_col))) %>%  # !!as.symbol is required as column name is passed as string
+      select(eventID, !!as.symbol(measurement_col), measurementRemarks) %>%  # occurrenceID is absent because this is from an event table
+      mutate(occurrenceID="")
+  } else if (mof_type =="occurrence") {
+    mof <- data %>% 
     # remove rows of measurement which are NULL
     filter(!is.na(!!as.symbol(measurement_col))) %>%  # !!as.symbol is required as column name is passed as string
-    select(eventID, !!as.symbol(measurement_col))  # occurrenceID is absent because this is an event table
+    select(eventID, occurrenceID, !!as.symbol(measurement_col), measurementRemarks) # select occurrenceID here
+  } else { break }
   
   # pull measurementType, measurementTypeID, measuremntUnit and measurmentUnitID from mof sheet based on the column name
   measurement_type <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementType)
   measurement_type_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementTypeID)
   measurement_unit <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnit)
   measurement_unit_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnitID)
-
-  # create mof table (long table)
-  mof_df <- data.frame(
-    eventID = mof[, "eventID"],
-    occurrenceID = "",
-    measurementType = measurement_type,
-    measurementTypeID = measurement_type_id,
-    measurementValue = mof[, measurement_col],
-    measurementUnit = measurement_unit,
-    measurementUnitID = measurement_unit_id,
-    measurementRemarks = ""
-  )  
-  return(mof_df)
-}
-
-```
-
-
-```{r message=FALSE}
-#' Function to subset a measurementType from wide occurrence table to long measurement or fact table
-#'
-#' @param data The data frame which contains measurement data in wide format.
-#' @param mof_fields The data frame which contains measurement columnName of `data`, measurementType and measurementUnit
-#' @param measurement_col A string which is the field name of data frame that contains the measurement value. Will be used to populate the measurementValue field.
-#
-
-create_occ_emof <- function(data = data, mof_fields = mof_fields, measurement_col) {
-  # create a measurement or fact table of a single measurement type from the data
-  # subset from full dataset
-  mof <- data %>% 
-    # remove rows of measurement which are NULL
-    filter(!is.na(!!as.symbol(measurement_col))) %>%  # !!as.symbol is required as column name is passed as string
-    select(eventID, occurrenceID, !!as.symbol(measurement_col), measurementRemarks)
-  
-  # pull measurementType and measuremntUnit from measurmentTypes sheet based on the column name
-  measurement_type <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementType)
-  measurement_type_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementTypeID)
-  measurement_unit <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnit)
-  measurement_unit_id <- mof_fields %>% filter(columnName == measurement_col) %>% pull(measurementUnitID)
-
 
   # create mof table (long table)
   mof_df <- data.frame(
@@ -135,40 +104,63 @@ create_occ_emof <- function(data = data, mof_fields = mof_fields, measurement_co
     measurementUnit = measurement_unit,
     measurementUnitID = measurement_unit_id,
     measurementRemarks = mof[, "measurementRemarks"]
-  )
+  )  
   return(mof_df)
 }
+
 ```
 
 
 ## Subsets of different measurements
 
+Create subsets of different measurements
 
 ```{r}
-water_temp <- create_event_emof(data = event, mof_fields = mof_fields, measurement_col = "water temperature (°C)")
-d13C <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d13C")
-d15N <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d15N")
-d34S <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "d34S")
-percent_C <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%C")
-percent_N <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%N")
-percent_S <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "%S")
-C_N_ratio <- create_occ_emof(data = occ, mof_fields = mof_fields, measurement_col = "C/N")
+# event MOF
+event_water_temp <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "water temperature (°C)")
+event_d13C <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "d13C")
+event_d15N <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "d15N")
+event_d34S <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "d34S")
+event_percent_C <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "%C")
+event_percent_N <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "%N")
+event_percent_S <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "%S")
+event_C_N_ratio <- create_emof(data = event, mof_type = "event", mof_fields = mof_fields, measurement_col = "C/N")
+
+# occurrence MOF
+occ_d13C <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "d13C")
+occ_d15N <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "d15N")
+occ_d34S <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "d34S")
+occ_percent_C <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "%C")
+occ_percent_N <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "%N")
+occ_percent_S <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "%S")
+occ_C_N_ratio <- create_emof(data = occ, mof_type = "occurrence", mof_fields = mof_fields, measurement_col = "C/N")
 
 # example
-head(d13C)
+head(event_d13C)
+head(occ_d13C)
 
 ```
 
+Bind all the subsets into one data frame to form the measurement or fact table.
+
 ```{r}
 mof_df <- rbind(
-  water_temp,
-  d13C,
-  d15N,
-  d34S,
-  percent_C,
-  percent_N,
-  percent_S,
-  C_N_ratio
+  event_water_temp,
+  event_d13C,
+  event_d15N, 
+  event_d34S, 
+  event_percent_C, 
+  event_percent_N, 
+  event_percent_S, 
+  event_C_N_ratio, 
+  occ_d13C, 
+  occ_d15N, 
+  occ_d34S, 
+  occ_percent_C, 
+  occ_percent_N, 
+  occ_percent_S, 
+  occ_C_N_ratio
+  
 )
 
 dim(mof_df)  # dimension of the mof long table

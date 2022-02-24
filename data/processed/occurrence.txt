@@ -320,18 +320,6 @@ Proteker5_Scuba_2016-11-30	Proteker5_Scuba_2016-11-30_Isotopes_POLSES22	POLSES22
 Proteker5_Scuba_2016-12-1	Proteker5_Scuba_2016-12-1_Isotopes_POLSES23	POLSES23	ULiege	Sedentaria			subclass	urn:lsid:marinespecies.org:taxname:754175	Animalia	Annelida	Polychaeta					MaterialSample		present	PhysicalObject	none
 Proteker5_Scuba_2016-12-1	Proteker5_Scuba_2016-12-1_Isotopes_POLSES24	POLSES24	ULiege	Sedentaria			subclass	urn:lsid:marinespecies.org:taxname:754175	Animalia	Annelida	Polychaeta					MaterialSample		present	PhysicalObject	none
 Proteker5_Scuba_2016-12-1	Proteker5_Scuba_2016-12-1_Isotopes_POLSES25	POLSES25	ULiege	Sedentaria			subclass	urn:lsid:marinespecies.org:taxname:754175	Animalia	Annelida	Polychaeta					MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED001	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED002	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED003	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED004	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED005	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-26		SED006	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED07	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED08	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED09	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED10	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED11	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-30		SED12	ULiege													MaterialSample		present	PhysicalObject	none
 Proteker5_Scuba_2016-11-20	Proteker5_Scuba_2016-11-20_Isotopes_SERO001	SERO001	ULiege	Serolidae			family	urn:lsid:marinespecies.org:taxname:118276	Animalia	Arthropoda	Malacostraca	Isopoda	Serolidae			MaterialSample		present	PhysicalObject	acidification
 Proteker5_Scuba_2016-11-21	Proteker5_Scuba_2016-11-21_Isotopes_SERO003	SERO003	ULiege	Serolidae			family	urn:lsid:marinespecies.org:taxname:118276	Animalia	Arthropoda	Malacostraca	Isopoda	Serolidae			MaterialSample		present	PhysicalObject	acidification
 Proteker5_Scuba_2016-11-21	Proteker5_Scuba_2016-11-21_Isotopes_SERO004	SERO004	ULiege	Serolidae			family	urn:lsid:marinespecies.org:taxname:118276	Animalia	Arthropoda	Malacostraca	Isopoda	Serolidae			MaterialSample		present	PhysicalObject	acidification
@@ -351,16 +339,6 @@ Proteker5_Scuba_2016-11-26	Proteker5_Scuba_2016-11-26_Isotopes_DENDRO15	DENDRO15
 Proteker5_Scuba_2016-11-26	Proteker5_Scuba_2016-11-26_Isotopes_DENDRO16	DENDRO16	ULiege	Staurocucumis			genus	urn:lsid:marinespecies.org:taxname:123492	Animalia	Echinodermata	Holothuroidea	Dendrochirotida	Cucumariidae	Staurocucumis		MaterialSample		present	PhysicalObject	acidification
 Proteker5_Scuba_2016-11-26	Proteker5_Scuba_2016-11-26_Isotopes_DENDRO17	DENDRO17	ULiege	Staurocucumis			genus	urn:lsid:marinespecies.org:taxname:123492	Animalia	Echinodermata	Holothuroidea	Dendrochirotida	Cucumariidae	Staurocucumis		MaterialSample		present	PhysicalObject	acidification
 Proteker5_Scuba_2016-11-26	Proteker5_Scuba_2016-11-26_Isotopes_DENDRO22	DENDRO22	ULiege	Staurocucumis			genus	urn:lsid:marinespecies.org:taxname:123492	Animalia	Echinodermata	Holothuroidea	Dendrochirotida	Cucumariidae	Staurocucumis		MaterialSample		present	PhysicalObject	acidification
-Proteker5_Scuba_2016-11-29		SPOM01	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-29		SPOM02	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-29		SPOM03	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-29		SPOM04	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-29		SPOM05	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-11-29		SPOM06	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-12-3		SPOM08	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-12-3		SPOM09	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-12-3		SPOM10	ULiege													MaterialSample		present	PhysicalObject	none
-Proteker5_Scuba_2016-12-3		SPOM11	ULiege													MaterialSample		present	PhysicalObject	none
 Proteker5_Scuba_2016-11-30	Proteker5_Scuba_2016-11-30_Isotopes_DETRMULV02	DETRMULV02	ULiege	Ulva			genus	urn:lsid:marinespecies.org:taxname:144296	Plantae	Chlorophyta	Ulvophyceae	Ulvales	Ulvaceae	Ulva		MaterialSample	Subtidal macrodetritus sampled during SCUBA diving	present	PhysicalObject	none
 Proteker5_Scuba_2016-11-30	Proteker5_Scuba_2016-11-30_Isotopes_DETRMULV03	DETRMULV03	ULiege	Ulva			genus	urn:lsid:marinespecies.org:taxname:144296	Plantae	Chlorophyta	Ulvophyceae	Ulvales	Ulvaceae	Ulva		MaterialSample	Subtidal macrodetritus sampled during SCUBA diving	present	PhysicalObject	none
 Proteker5_Scuba_2016-11-30	Proteker5_Scuba_2016-11-30_Isotopes_DETRMULV04	DETRMULV04	ULiege	Ulva			genus	urn:lsid:marinespecies.org:taxname:144296	Plantae	Chlorophyta	Ulvophyceae	Ulvales	Ulvaceae	Ulva		MaterialSample	Subtidal macrodetritus sampled during SCUBA diving	present	PhysicalObject	none
