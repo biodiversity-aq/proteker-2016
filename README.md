@@ -1,4 +1,4 @@
-# proteker-2016
+# proteker2016-event
 
 
 This repository contains short code to transform raw data of dataset `Stable isotope ratios and elemental contents of C, N and S in benthic organisms sampled during the PROTEKER 5 summer campaign in Kerguelen Islands (2016)`
